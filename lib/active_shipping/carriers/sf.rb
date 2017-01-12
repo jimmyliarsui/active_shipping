@@ -1,5 +1,10 @@
 module ActiveShipping
-  class UPS < Carrier
+  class SF < Carrier
+    require 'httparty'
+    
+    self.retry_safe = true
+    cattr_reader :name
+    
     @@name = "SF"
 
     TEST_URL = "http://bspoisp.sit.sf-express.com:11080/bsp-oisp/sfexpressService"
@@ -17,12 +22,12 @@ module ActiveShipping
         j_tel: origin.phone,
         j_province: origin.province,
         j_city: origin.city,
-        j_county: origin.county,
+        j_county: origin.district,
         j_address: origin.address1,
         d_company: destination.company,
         d_contact: destination.name,
         d_tel: destination.phone,
-        d_county: destination.county,
+        d_county: destination.district,
         d_address: destination.address1,
         express_type: options[:express_type] || 1,
         parcel_quantity: options[:parcel_quantity] || 1,
@@ -43,16 +48,16 @@ module ActiveShipping
           amount: pack.get_attr("amount"),
           source_area: pack.get_attr("source_area") } }
       
-      packages_attr = packages.map{|pack| "<Cargo #{pack.to_attr_string}> </Cargo>"}.join("\n")
-      body = "<Order #{order_hash.to_attr_string}> \n #{packages_attr}\n </Order>"
+      packages_attr = packages.map{|pack| "<Cargo #{to_attr_str pack}> </Cargo>"}.join("\n")
+      body = "<Order #{to_attr_str order_hash}> \n #{packages_attr}\n </Order>"
       response = call_sf :OrderService, body, options[:test]
-      parse_create_response response
+      parse_ship_response response
     end
 
     ## 查询发货单相关信息
     def find_tracking_info tracking_number, options = {}
       hash = { tracking_number: tracking_number, tracking_type: 1, method_type: 1 }
-      body = "<RouteRequest #{hash.to_attr_string} />"
+      body = "<RouteRequest #{to_attr_str hash} />"
       call_sf :RouteService, body, options[:test]
     end
 
@@ -60,7 +65,7 @@ module ActiveShipping
     # 注意:订单取消之后,订单号也是不能重复利用的。
     def cancel_shipment tracking_number, options = {}
       hash = { orderid: options[:orderid], mailno: tracking_number, dealtype: 2}
-      body = "<OrderConfirm #{hash.to_attr_string}> </OrderConfirm>"
+      body = "<OrderConfirm #{to_attr_st hash}> </OrderConfirm>"
       call_sf :OrderConfirmService, body, options[:test]
     end
 
@@ -70,7 +75,7 @@ module ActiveShipping
     def confirm orderid, tracking_number, weight, volume
       hash = { orderid: orderid, mailno: tracking_number, weight: weight, volume: volume, dealtype: 1}
       #hash = { orderid: '23322111', mailno: '444825172510', weight: 10, volume: '10,20,30', dealtype: 1}
-      body = "<OrderConfirm #{hash.to_attr_string}> </OrderConfirm>"
+      body = "<OrderConfirm #{to_attr_str hash}> </OrderConfirm>"
       call_sf :OrderConfirmService, body
     end
 
@@ -89,10 +94,14 @@ module ActiveShipping
       Hash.from_xml(res.body)["Response"]
     end
 
+    def to_attr_str hash
+      hash.map{|k, v| "#{k} = \"#{v}\""}.join("\n")
+    end
+
     def parse_ship_response response
       success = response["Head"] == "OK"
       message = response["ERROR"].to_s
-      track_no = response["Body"]["OrderResponse"]["mailno"]
+      track_no = success ? response["Body"]["OrderResponse"]["mailno"] : ""
       ## 顺丰需要自己渲染发货标签
       labels = [Label.new(track_no, "")]
       LabelResponse.new(success, message, response, {labels: labels})

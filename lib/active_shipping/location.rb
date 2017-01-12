@@ -5,6 +5,7 @@ module ActiveShipping #:nodoc:
     ATTRIBUTE_ALIASES = {
       name: [:name],
       country: [:country_code, :country],
+      district: [:district],
       postal_code: [:postal_code, :zip, :postal],
       province: [:province_code, :state_code, :territory_code, :region_code, :province, :state, :territory, :region],
       city: [:city, :town],
@@ -28,6 +29,7 @@ module ActiveShipping #:nodoc:
                 :address3,
                 :phone,
                 :fax,
+                :district,
                 :address_type,
                 :company_name
 
@@ -37,7 +39,7 @@ module ActiveShipping #:nodoc:
     alias_method :territory, :province
     alias_method :region, :province
     alias_method :company, :company_name
-
+    
     def initialize(options = {})
       @country = if options[:country].nil? || options[:country].is_a?(ActiveUtils::Country)
         options[:country]
@@ -52,6 +54,7 @@ module ActiveShipping #:nodoc:
       @address1 = options[:address1]
       @address2 = options[:address2]
       @address3 = options[:address3]
+      @district = options[:district]
       @phone = options[:phone]
       @fax = options[:fax]
       @company_name = options[:company_name] || options[:company]
@@ -126,6 +129,7 @@ module ActiveShipping #:nodoc:
         address3: address3,
         phone: phone,
         fax: fax,
+        district: district,
         address_type: address_type,
         company_name: company_name
       }

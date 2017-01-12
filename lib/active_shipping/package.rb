@@ -130,6 +130,14 @@ module ActiveShipping #:nodoc:
       end
     end
 
+    def get_attr name
+      if self.respond_to?(name.to_sym)
+        self.send(name.to_sym)
+      else
+        @options[name.to_sym]
+      end
+    end
+    
     private
 
     def attribute_from_metric_or_imperial(obj, klass, unit_system, metric_unit, imperial_unit)
@@ -165,13 +173,6 @@ module ActiveShipping #:nodoc:
       end
     end
 
-    def get_attr name
-      if self.respond_to?(name.to_sym)
-        self.send(name.to_sym)
-      else
-        @options[name.to_sym]
-      end
-    end
     
   end
 end
