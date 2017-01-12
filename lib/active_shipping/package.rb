@@ -164,5 +164,14 @@ module ActiveShipping #:nodoc:
         @dimensions.unshift(@dimensions[0])
       end
     end
+
+    def get_attr name
+      if self.respond_to?(name.to_sym)
+        self.send(name.to_sym)
+      else
+        @options[name.to_sym]
+      end
+    end
+    
   end
 end
