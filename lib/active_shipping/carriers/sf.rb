@@ -11,7 +11,7 @@ module ActiveShipping
     
     def create_shipment(origin, destination, packages, options={})
       order_hash = {
-        orderid: options['order_id'],
+        orderid: options[:order_id],
         j_company: origin.company,
         j_contact: origin.name,
         j_tel: origin.phone,
@@ -24,11 +24,11 @@ module ActiveShipping
         d_tel: destination.phone,
         d_county: destination.county,
         d_address: destination.address1,
-        express_type: options['express_type'] || '1',
-        parcel_quantity: options['parcel_quantity'] || 1,
-        cargo_length: options['cargo_length'].to_s,
-        cargo_width: options['cargo_width'].to_s,
-        cargo_height: options['cargo_height'].to_s,
+        express_type: options[:express_type] || 1,
+        parcel_quantity: options[:parcel_quantity] || 1,
+        cargo_length: options[:cargo_length].to_s,
+        cargo_width: options[:cargo_width].to_s,
+        cargo_height: options[:cargo_height].to_s,
         pay_method: '1',
         is_gen_bill_no: '1',
         custid: @options[:monthly_account],
