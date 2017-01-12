@@ -1,19 +1,19 @@
 module ActiveShipping
   class SF < Carrier
     require 'httparty'
-    
+
     self.retry_safe = true
     cattr_reader :name
-    
+
     @@name = "SF"
 
     TEST_URL = "http://bspoisp.sit.sf-express.com:11080/bsp-oisp/sfexpressService"
     LIVE_URL = "not implemented"
-    
+
     def requirements
       [:monthly_account, :checkword]
     end
-    
+
     def create_shipment(origin, destination, packages, options={})
       order_hash = {
         orderid: options[:order_id],
@@ -47,7 +47,7 @@ module ActiveShipping
           weight: pack.get_attr("weight"),
           amount: pack.get_attr("amount"),
           source_area: pack.get_attr("source_area") } }
-      
+
       packages_attr = packages.map{|pack| "<Cargo #{to_attr_str pack}> </Cargo>"}.join("\n")
       body = "<Order #{to_attr_str order_hash}> \n #{packages_attr}\n </Order>"
       response = call_sf :OrderService, body, options[:test]
@@ -59,7 +59,7 @@ module ActiveShipping
       hash = { tracking_number: tracking_number, tracking_type: 1, method_type: 1 }
       body = "<RouteRequest #{to_attr_str hash} />"
       response = call_sf :RouteService, body, options[:test]
-      parse_tracking_response response
+      parse_tracking_response response, tracking_number
     end
 
     # 客户在发货前取消订单。
@@ -85,7 +85,7 @@ module ActiveShipping
     def call_sf method, body, test = true
       params = "<Request service=\"#{method.to_s}\" lang=\"zh-CN\">
                <Head>BSPdevelop</Head>
-               <Body>#{body}</Body>               
+               <Body>#{body}</Body>
               </Request>"
 
       verify_code = Base64.encode64(Digest::MD5.digest(params + @options[:checkword]))
@@ -108,27 +108,30 @@ module ActiveShipping
       LabelResponse.new(success, message, response, {labels: labels})
     end
 
-    def parse_tracking_response response
+    def parse_tracking_response response, tracking_number
       success = response["Head"] == "OK"
       message = response["ERROR"].to_s
       shipment_events = []
+      ship_status = ""
       if success
-        shipment_events = response["Body"]["RouteResponse"]["Route"].map do |node|
+        nodes = response["Body"]["RouteResponse"]["Route"]
+        shipment_events = nodes.map do |node|
           description = node["remark"]
           type_code = node["opcode"]
-          zoneless_time = parse_ups_datetime(:time => activity.at('Time'), :date => activity.at('Date'))
           zoneless_time = Time.parse(node["accept_time"])
           location = node["accept_address"]
           ShipmentEvent.new(description, zoneless_time, location, description, type_code)
         end
+        ship_status = "delivered" if nodes.any?{|node| node["已签收"].present? }
       end
       TrackingResponse.new(success, message, response,
                            :carrier => @@name,
                            :xml => response,
+                           :ship_status => ship_status,
                            :request => last_request,
                            :shipment_events => shipment_events,
                            :tracking_number => tracking_number)
     end
-    
+
   end
 end
