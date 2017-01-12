@@ -8,7 +8,7 @@ module ActiveShipping #:nodoc:
     # Package.new(100.grams, [10, 20, 30].map(&:centimetres))
     def initialize(grams_or_ounces, dimensions, options = {})
       options = @@default_options.update(options) if @@default_options
-      options.symbolize_keys!
+      options = options.symbolize_keys
       @options = options
 
       @dimensions = [dimensions].flatten.reject(&:nil?)
