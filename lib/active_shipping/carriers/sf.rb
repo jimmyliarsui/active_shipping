@@ -58,7 +58,8 @@ module ActiveShipping
     def find_tracking_info tracking_number, options = {}
       hash = { tracking_number: tracking_number, tracking_type: 1, method_type: 1 }
       body = "<RouteRequest #{to_attr_str hash} />"
-      call_sf :RouteService, body, options[:test]
+      response = call_sf :RouteService, body, options[:test]
+      parse_tracking_response response
     end
 
     # 客户在发货前取消订单。
@@ -105,6 +106,28 @@ module ActiveShipping
       ## 顺丰需要自己渲染发货标签
       labels = [Label.new(track_no, "")]
       LabelResponse.new(success, message, response, {labels: labels})
+    end
+
+    def parse_tracking_response response
+      success = response["Head"] == "OK"
+      message = response["ERROR"].to_s
+      shipment_events = []
+      if success
+        shipment_events = response["Body"]["RouteResponse"]["Route"].map do |node|
+          description = node["remark"]
+          type_code = node["opcode"]
+          zoneless_time = parse_ups_datetime(:time => activity.at('Time'), :date => activity.at('Date'))
+          zoneless_time = Time.parse(node["accept_time"])
+          location = node["accept_address"]
+          ShipmentEvent.new(description, zoneless_time, location, description, type_code)
+        end
+      end
+      TrackingResponse.new(success, message, response,
+                           :carrier => @@name,
+                           :xml => response,
+                           :request => last_request,
+                           :shipment_events => shipment_events,
+                           :tracking_number => tracking_number)
     end
     
   end
