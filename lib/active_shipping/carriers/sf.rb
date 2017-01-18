@@ -27,6 +27,7 @@ module ActiveShipping
         d_company: destination.company,
         d_contact: destination.name,
         d_tel: destination.phone,
+        d_city: destination.city,
         d_county: destination.district,
         d_address: destination.address1,
         express_type: options[:express_type] || 1,
