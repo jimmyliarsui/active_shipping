@@ -27,6 +27,7 @@ module ActiveShipping
         d_company: destination.company,
         d_contact: destination.name,
         d_tel: destination.phone,
+        d_province: destination.province,
         d_city: destination.city,
         d_county: destination.district,
         d_address: destination.address1,
@@ -35,6 +36,8 @@ module ActiveShipping
         cargo_length: options[:cargo_length].to_s,
         cargo_width: options[:cargo_width].to_s,
         cargo_height: options[:cargo_height].to_s,
+        j_post_code: options[:j_post_code].to_s,
+        d_post_code: options[:d_post_code].to_s,
         pay_method: '1',
         is_gen_bill_no: '1',
         custid: @options[:monthly_account],
@@ -47,10 +50,31 @@ module ActiveShipping
           unit: pack.get_attr("unit"),
           weight: pack.get_attr("weight"),
           amount: pack.get_attr("amount"),
-          source_area: pack.get_attr("source_area") } }
+          source_area: pack.get_attr("source_area") }
+      }
 
-      packages_attr = packages.map{|pack| "<Cargo #{to_attr_str pack}> </Cargo>"}.join("\n")
-      body = "<Order #{to_attr_str order_hash}> \n #{packages_attr}\n </Order>"
+      packages_attr_str = packages.map{|pack| "<Cargo #{to_attr_str pack}> </Cargo>"}.join("\n")
+      
+      service_attr = []
+      if options[:pay_value].present?
+        ## 代收货款服务，value 为代收的钱，币种为人民币或者港币，根据寄货所在的地区 value1为收款卡号，保留3位小数。
+        service_attr << { name: 'COD', value: options[:pay_value], value1: options[:payto_card_no]}
+      end
+      if options[:msg_number].present?
+        ## 签收短信通知
+        service_attr << { name: 'MSG', value: options[:msg_number] }
+      end
+      if options[:declared_value].present?
+        #保价服务， value为声明价值以原寄地所在区域币种 为准，如中国大陆为人民币，香港为港币，保留3位小数。
+        service_attr << { name: 'INSURE', value: options[:declared_value] }
+      end
+      
+      service_attr_str = if service_attr.size > 0
+                           service_attr.map{|attr| "<AddedService #{to_attr_str attr} ></AddedService>"}.join("\n")
+                         else
+                           ""
+                         end
+      body = "<Order #{to_attr_str order_hash}> \n #{packages_attr_str}\n #{service_attr_str} \n</Order>"
       response = call_sf :OrderService, body, options[:test]
       parse_ship_response response
     end
