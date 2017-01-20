@@ -43,6 +43,7 @@ module ActiveShipping
         custid: @options[:monthly_account],
         remark: options['remark'].to_s
       }
+      
       ## 对于跨境物流，这几个字段必要
       packages = packages.map{|pack|
         { name: pack.get_attr("name"),
@@ -50,6 +51,7 @@ module ActiveShipping
           unit: pack.get_attr("unit"),
           weight: pack.get_attr("weight"),
           amount: pack.get_attr("amount"),
+          currency: pack.get_attr("currency"),
           source_area: pack.get_attr("source_area") }
       }
 
@@ -92,7 +94,8 @@ module ActiveShipping
     def cancel_shipment tracking_number, options = {}
       hash = { orderid: options[:orderid], mailno: tracking_number, dealtype: 2}
       body = "<OrderConfirm #{to_attr_st hash}> </OrderConfirm>"
-      call_sf :OrderConfirmService, body, options[:test]
+      response = call_sf :OrderConfirmService, body, options[:test]
+      
     end
 
     # 客户在确定将货物交付给顺丰托运后,将运单上的一些重要信息,如快件重量通过 此接口发送给顺丰。
