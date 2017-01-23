@@ -141,7 +141,7 @@ module ActiveShipping
       message = response["ERROR"].to_s
       shipment_events = []
       ship_status = ""
-      if success
+      if success && response["Body"].present?
         nodes = response["Body"]["RouteResponse"]["Route"]
         shipment_events = nodes.map do |node|
           description = node["remark"]
