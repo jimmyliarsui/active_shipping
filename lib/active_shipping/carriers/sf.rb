@@ -95,7 +95,7 @@ module ActiveShipping
     # 注意:订单取消之后,订单号也是不能重复利用的。
     def cancel_shipment tracking_number, options = {}
       hash = { orderid: options[:orderid], mailno: tracking_number, dealtype: 2}
-      body = "<OrderConfirm #{to_attr_st hash}> </OrderConfirm>"
+      body = "<OrderConfirm #{to_attr_str hash}> </OrderConfirm>"
       response = call_sf :OrderConfirmService, body, options[:test]
       
     end
@@ -122,6 +122,7 @@ module ActiveShipping
 
       url = test ? TEST_URL : LIVE_URL
       res = HTTParty.post(url, { body: { xml: params, verifyCode: verify_code }})
+      raise "顺丰接口返回空值" if res.body.present?
       Hash.from_xml(res.body)["Response"]
     end
 
