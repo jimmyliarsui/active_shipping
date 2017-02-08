@@ -4,6 +4,7 @@ module ActiveShipping #:nodoc:
 
     ATTRIBUTE_ALIASES = {
       name: [:name],
+      mobile: [:mobile],
       country: [:country_code, :country],
       district: [:district],
       postal_code: [:postal_code, :zip, :postal],
@@ -29,6 +30,7 @@ module ActiveShipping #:nodoc:
                 :address3,
                 :phone,
                 :fax,
+                :mobile,
                 :district,
                 :address_type,
                 :company_name
@@ -128,6 +130,7 @@ module ActiveShipping #:nodoc:
         address2: address2,
         address3: address3,
         phone: phone,
+        mobile: mobile,
         fax: fax,
         district: district,
         address_type: address_type,
