@@ -146,6 +146,7 @@ module ActiveShipping
       ship_status = ""
       if success && response["Body"].present?
         nodes = response["Body"]["RouteResponse"]["Route"]
+        nodes = [nodes] if !nodes.is_a?(Array)
         shipment_events = nodes.map do |node|
           description = node["remark"]
           type_code = node["opcode"]
