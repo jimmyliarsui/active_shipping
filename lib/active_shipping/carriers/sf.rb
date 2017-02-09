@@ -154,7 +154,7 @@ module ActiveShipping
           location = node["accept_address"]
           ShipmentEvent.new(description, zoneless_time, location, description, type_code)
         end
-        ship_status = "delivered" if nodes.any?{|node| node["remark"].index("已签收").present? }
+        ship_status = :delivered if nodes.any?{|node| node["remark"].index("已签收").present? }
       end
       TrackingResponse.new(success, message, response,
                            :carrier => @@name,
