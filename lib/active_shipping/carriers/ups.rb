@@ -747,7 +747,7 @@ module ActiveShipping
             end
           end
 
-          if package_value = package.options[:insured_value]
+          if package_value = package.options[:insured_value] || package.value
             xml.InsuredValue do
               xml.CurrencyCode(package.options[:currency] || 'USD')
               xml.MonetaryValue(package_value.to_f)
