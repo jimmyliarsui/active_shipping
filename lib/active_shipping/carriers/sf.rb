@@ -33,7 +33,7 @@ module ActiveShipping
         d_city: destination.city,
         d_county: destination.district,
         d_address: destination.address1,
-        express_type: options[:express_type] || 1,
+        express_type: options[:service_code] || '1',
         parcel_quantity: options[:parcel_quantity] || 1,
         cargo_length: options[:cargo_length].to_s,
         cargo_width: options[:cargo_width].to_s,
@@ -71,6 +71,10 @@ module ActiveShipping
       if options[:declared_value].present?
         #保价服务， value为声明价值以原寄地所在区域币种 为准，如中国大陆为人民币，香港为港币，保留3位小数。
         service_attr << { name: 'INSURE', value: options[:declared_value] }
+      end
+
+      if options[:delivery_date].present?
+        service_attr << { name: 'TDELIVERY', value: options[:delivery_date], value1: options[:delivery_time_range] }
       end
       
       service_attr_str = if service_attr.size > 0
