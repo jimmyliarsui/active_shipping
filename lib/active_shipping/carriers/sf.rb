@@ -139,7 +139,7 @@ module ActiveShipping
       message = response["ERROR"].to_s
       track_no = success ? response["Body"]["OrderResponse"]["mailno"] : ""
       ## 顺丰需要自己渲染发货标签
-      labels = [Label.new(track_no, "")]
+      labels = track_no.split(",").map{|tr| Label.new(tr, "") }
       LabelResponse.new(success, message, response, {labels: labels})
     end
 
