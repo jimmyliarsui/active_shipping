@@ -7,7 +7,7 @@ module ActiveShipping
 
     @@name = "SF"
 
-    TEST_URL = "http://bspoisp.sit.sf-express.com:11080/bsp-oisp/sfexpressService"
+    TEST_URL = "http://218.17.248.244:11080/bsp-oisp/sfexpressService"
     LIVE_URL = "not implemented"
 
     def requirements
