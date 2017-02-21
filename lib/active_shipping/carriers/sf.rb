@@ -45,19 +45,19 @@ module ActiveShipping
         custid: @options[:monthly_account],
         remark: options['remark'].to_s
       }
-      
+
       ## 对于跨境物流，这几个字段必要
       packages = packages.map{|pack|
         { name: pack.get_attr("name"),
           count: pack.get_attr("count"),
           unit: pack.get_attr("unit"),
-          weight: pack.get_attr("weight"),
+          weight: pack.kg.to_f.round(3),
           amount: pack.get_attr("amount"),
           currency: pack.get_attr("currency"),
           source_area: pack.get_attr("source_area") }
       }
 
-      packages_attr_str = packages.map{|pack| "<Cargo #{to_attr_str pack}> </Cargo>"}.join("\n")
+      packages_attr_str = packages.map{|pack| "<Cargo\n#{to_attr_str pack}></Cargo>"}.join("\n")
       
       service_attr = []
       if options[:pay_value].present?
@@ -126,8 +126,10 @@ module ActiveShipping
 
       url = test ? TEST_URL : LIVE_URL
       body = { body: { xml: params, verifyCode: verify_code } }
-      Rails.logger.info "debug sf:\n #{body.inspect}"
+      Rails.logger.info "debug sf:\n #{body[:body][:xml]}"
+      puts 
       res = HTTParty.post(url, body)
+      Rails.logger.info "result: \n #{res.body}"
       raise "顺丰接口返回空值" if !res.body.present?
       Hash.from_xml(res.body)["Response"]
     end
