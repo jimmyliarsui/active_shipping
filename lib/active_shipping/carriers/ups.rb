@@ -472,6 +472,27 @@ module ActiveShipping
               if options[:international]
                 build_international_forms(xml, origin, destination, packages, options)
               end
+
+              if label_delivery_email = options[:label_delivery_email]
+                xml.LabelDelivery do
+                  xml.Email do
+                    xml.EMailAddress(label_delivery_email)
+                    
+                    if undeliverable_email = options[:undeliverable_email_address]
+                      xml.UndeliverableEMailAddress(undeliverable_email)
+                    end
+
+                    if from_email = options[:label_from_email]
+                      xml.FromEMailAddress(from_email)
+                    end
+
+                    if from_name = options[:label_from_name]
+                      xml.FromName(from_name)
+                    end
+                  end
+                end
+              end
+              
             end
 
             # A request may specify multiple packages.
@@ -1019,7 +1040,8 @@ module ActiveShipping
       packages = response_info["ShipmentResults"]["PackageResults"]
       packages = [packages] if Hash === packages
       labels = packages.map do |package|
-        Label.new(package["TrackingNumber"], Base64.decode64(package["LabelImage"]["GraphicImage"]))
+        image = package["LabelImage"].present? ? Base64.decode64(package["LabelImage"]["GraphicImage"]) : ""
+        Label.new(package["TrackingNumber"], image)
       end
 
       LabelResponse.new(success, message, response_info, {labels: labels})
