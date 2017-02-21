@@ -118,7 +118,7 @@ module ActiveShipping
 
     def call_sf method, body, test = true
       params = "<Request service=\"#{method.to_s}\" lang=\"zh-CN\">
-               <Head>BSPdevelop</Head>
+               <Head>#{@options[:code]}</Head>
                <Body>#{body}</Body>
               </Request>"
 
