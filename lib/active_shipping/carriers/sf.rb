@@ -125,7 +125,8 @@ module ActiveShipping
       verify_code = Base64.encode64(Digest::MD5.digest(params + @options[:checkword]))
 
       url = test ? TEST_URL : LIVE_URL
-      res = HTTParty.post(url, { body: { xml: params, verifyCode: verify_code }})
+      body = { body: { xml: params, verifyCode: verify_code } }
+      res = HTTParty.post(url, body)
       raise "顺丰接口返回空值" if !res.body.present?
       Hash.from_xml(res.body)["Response"]
     end
