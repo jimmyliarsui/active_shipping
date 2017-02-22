@@ -79,6 +79,11 @@ module ActiveShipping
       if options[:delivery_date].present?
         service_attr << { name: 'TDELIVERY', value: options[:delivery_date], value1: options[:delivery_time_range] }
       end
+
+      if options[:pkfee_value].present?
+        service_attr << { name: 'PKFEE', value: options[:pkfee_value] }
+      end
+      
       
       service_attr_str = if service_attr.size > 0
                            service_attr.map{|attr| "<AddedService #{to_attr_str attr} ></AddedService>"}.join("\n")
