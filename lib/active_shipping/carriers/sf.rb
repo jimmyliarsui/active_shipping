@@ -40,12 +40,15 @@ module ActiveShipping
         cargo_height: options[:cargo_height].to_s,
         j_post_code: options[:j_post_code].to_s,
         d_post_code: options[:d_post_code].to_s,
-        pay_method: '1',
         is_gen_bill_no: '1',
-        custid: @options[:monthly_account],
         remark: options['remark'].to_s
       }
 
+      order_hash[:pay_method] = options[:pay_method].present? ? options[:pay_method].to_i : 2
+      if order_hash[:pay_method] == 2
+        order_hash[:custid] = @options[:monthly_account]
+      end
+      
       ## 对于跨境物流，这几个字段必要
       packages = packages.map{|pack|
         { name: pack.get_attr("name"),
