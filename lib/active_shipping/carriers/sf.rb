@@ -44,8 +44,8 @@ module ActiveShipping
         remark: options['remark'].to_s
       }
 
-      order_hash[:pay_method] = options[:pay_method].present? ? options[:pay_method].to_i : 2
-      if order_hash[:pay_method] == 2
+      order_hash[:pay_method] = options[:pay_method].present? ? options[:pay_method].to_i : 1
+      if order_hash[:pay_method] == 1
         order_hash[:custid] = @options[:monthly_account]
       end
       
