@@ -8,7 +8,7 @@ module ActiveShipping
     @@name = "SF"
 
     TEST_URL = "http://218.17.248.244:11080/bsp-oisp/sfexpressService"
-    LIVE_URL = "not implemented"
+    LIVE_URL = "http://bsp-ois.sf-express.com/bsp-ois/sfexpressService"
 
     def requirements
       [:monthly_account, :checkword]
