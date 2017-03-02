@@ -1089,8 +1089,7 @@ module ActiveShipping
     def handle_package_level_delivery_confirmation(origin, destination, packages, options)
       packages.each do |package|
         # Transfer shipment-level option to package with no specified delivery_confirmation
-        package.options[:delivery_confirmation] = options[:delivery_confirmation] unless package.options[:delivery_confirmation]
-
+        package.options[:delivery_confirmation] = options[:delivery_confirmation] unless package.options[:delivery_confirmation]        
         # Assert that option is valid
         if package.options[:delivery_confirmation] && !PACKAGE_DELIVERY_CONFIRMATION_CODES[package.options[:delivery_confirmation]]
           raise "Invalid delivery_confirmation option on package: '#{package.options[:delivery_confirmation]}'. Use a key from PACKAGE_DELIVERY_CONFIRMATION_CODES"

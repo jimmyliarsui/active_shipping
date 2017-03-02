@@ -9,7 +9,7 @@ module ActiveShipping
 
     TEST_URL = "http://218.17.248.244:11080/bsp-oisp/sfexpressService"
     LIVE_URL = "http://bsp-ois.sf-express.com/bsp-ois/sfexpressService"
-
+    
     def requirements
       [:monthly_account, :checkword]
     end
@@ -134,6 +134,12 @@ module ActiveShipping
 
       url = test ? TEST_URL : LIVE_URL
       body = { body: { xml: params, verifyCode: verify_code } }
+      if (proxy = @options[:proxy])
+        body.merge!({http_proxyaddr: proxy.address,
+                     http_proxyport: proxy.port,
+                     http_proxyuser: proxy.user,
+                     http_proxypass: proxy.pass})
+      end
       Rails.logger.info "debug sf:\n #{body[:body][:xml]}"
       puts 
       res = HTTParty.post(url, body)
