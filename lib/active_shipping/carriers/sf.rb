@@ -140,7 +140,7 @@ module ActiveShipping
                      http_proxyuser: proxy.user,
                      http_proxypass: proxy.pass})
       end
-      Rails.logger.info "debug sf:\n #{body[:body][:xml]}"
+      Rails.logger.info "debug sf:\n #{body.inspect}"
       puts 
       res = HTTParty.post(url, body)
       Rails.logger.info "result: \n #{res.body}"

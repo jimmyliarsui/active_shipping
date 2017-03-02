@@ -40,7 +40,7 @@ module ActiveShipping #:nodoc:
         process_dimensions
       end
 
-      @value = Package.cents_from(options[:value])
+      @value = Package.money_from(options[:value])
       @currency = options[:currency] || (options[:value].currency if options[:value].respond_to?(:currency))
       @cylinder = (options[:cylinder] || options[:tube]) ? true : false
       @gift = options[:gift] ? true : false
@@ -114,6 +114,15 @@ module ActiveShipping #:nodoc:
     end
     alias_method :mass, :weight
 
+    def self.money_from(value)
+      case value
+      when Float
+        value
+      else
+        value.to_f
+      end
+    end
+          
     def self.cents_from(money)
       return nil if money.nil?
       if money.respond_to?(:cents)
