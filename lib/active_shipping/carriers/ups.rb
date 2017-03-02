@@ -475,7 +475,7 @@ module ActiveShipping
 
               if label_delivery_email = options[:label_delivery_email]
                 xml.LabelDelivery do
-                  xml.Email do
+                  xml.EMail do
                     xml.EMailAddress(label_delivery_email)
                     
                     if undeliverable_email = options[:undeliverable_email_address]
