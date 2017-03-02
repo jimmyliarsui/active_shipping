@@ -102,7 +102,7 @@ module ActiveShipping
       parse_tracking_response response, tracking_number
     end
 
-    def search_order order_no
+    def search_order order_no, options = {}
       hash = { orderid: order_no }
       body = "<OrderSearch #{to_attr_str hash} />"
       call_sf :OrderSearchService, body, options[:test]      
