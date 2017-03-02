@@ -526,7 +526,9 @@ module ActiveShipping
           end
         end
       end
-      xml_builder.to_xml
+      res = xml_builder.to_xml
+      #puts "debug now: \n #{res}"
+      res
     end
 
     def build_delivery_dates_request(origin, destination, packages, pickup_date, options={})

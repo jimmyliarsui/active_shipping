@@ -84,7 +84,6 @@ module ActiveShipping
         service_attr << { name: 'PKFEE', value: options[:pkfee_value] }
       end
       
-      
       service_attr_str = if service_attr.size > 0
                            service_attr.map{|attr| "<AddedService #{to_attr_str attr} ></AddedService>"}.join("\n")
                          else
@@ -141,7 +140,6 @@ module ActiveShipping
                      http_proxypass: proxy.pass})
       end
       Rails.logger.info "debug sf:\n #{body.inspect}"
-      puts 
       res = HTTParty.post(url, body)
       Rails.logger.info "result: \n #{res.body}"
       raise "顺丰接口返回空值" if !res.body.present?
