@@ -102,6 +102,12 @@ module ActiveShipping
       parse_tracking_response response, tracking_number
     end
 
+    def search_order order_no
+      hash = { orderid: order_no }
+      body = "<OrderSearch #{to_attr_str hash} />"
+      call_sf :OrderSearchService, body, options[:test]      
+    end
+
     # 客户在发货前取消订单。
     # 注意:订单取消之后,订单号也是不能重复利用的。
     def cancel_shipment tracking_number, options = {}
