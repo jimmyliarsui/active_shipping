@@ -527,7 +527,7 @@ module ActiveShipping
         end
       end
       res = xml_builder.to_xml
-      #puts "debug now: \n #{res}"
+      puts "debug now: \n #{res}" if !Rails.env.test?
       res
     end
 

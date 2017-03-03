@@ -8,7 +8,12 @@ module ActiveShipping
     @@name = "SF"
 
     TEST_URL = "http://218.17.248.244:11080/bsp-oisp/sfexpressService"
-    LIVE_URL = "http://bsp-ois.sf-express.com/bsp-ois/sfexpressService"
+
+    ## 非固定 IP 接入
+    LIVE_URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
+
+    ## 固定 IP 接入
+    #LIVE_URL = "http://bsp-ois.sf-express.com/bsp-ois/sfexpressService"
     #LIVE_URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
     
     def requirements
@@ -115,12 +120,10 @@ module ActiveShipping
       hash = { orderid: options[:orderid], mailno: tracking_number, dealtype: 2}
       body = "<OrderConfirm #{to_attr_str hash}> </OrderConfirm>"
       response = call_sf :OrderConfirmService, body, options[:test]
-      
     end
 
     # 客户在确定将货物交付给顺丰托运后,将运单上的一些重要信息,如快件重量通过 此接口发送给顺丰。
-    # weight 重量
-    # volume 为 长,宽,高
+    # weight 重量，volume 为 长,宽,高
     def confirm orderid, tracking_number, weight, volume
       hash = { orderid: orderid, mailno: tracking_number, weight: weight, volume: volume, dealtype: 1}
       #hash = { orderid: '23322111', mailno: '444825172510', weight: 10, volume: '10,20,30', dealtype: 1}
