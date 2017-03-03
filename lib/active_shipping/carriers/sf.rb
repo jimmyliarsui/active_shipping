@@ -7,7 +7,8 @@ module ActiveShipping
 
     @@name = "SF"
 
-    TEST_URL = "http://218.17.248.244:11080/bsp-oisp/sfexpressService"
+    #TEST_URL = "http://218.17.248.244:11080/bsp-oisp/sfexpressService"
+    TEST_URL = "http://bspoisp.sit.sf-express.com:11080/bsp-oisp/sfexpressService"
 
     ## 非固定 IP 接入
     LIVE_URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
@@ -96,8 +97,17 @@ module ActiveShipping
                            ""
                          end
       body = "<Order #{to_attr_str order_hash}> \n #{packages_attr_str}\n #{service_attr_str} \n</Order>"
-      response = call_sf :OrderService, body, options[:test]
-      parse_ship_response response
+      begin
+        response = call_sf :OrderService, body, options[:test]
+        parse_ship_response response
+      rescue => e
+        if e.message == "重复下单"
+          response = search_order options[:order_id], options
+          parse_ship_response response
+        else
+          raise e.message
+        end
+      end
     end
 
     ## 查询发货单相关信息
@@ -149,8 +159,10 @@ module ActiveShipping
                      http_proxyuser: proxy.user,
                      http_proxypass: proxy.pass})
       end
+      #puts "sf: #{url}\n #{body.inspect}"
       Rails.logger.info "debug sf:\n #{body.inspect}"
       res = HTTParty.post(url, body)
+      #puts "sf_res: #{res.inspect}"
       Rails.logger.info "result: \n #{res.body}"
       raise "顺丰接口返回空值" if !res.body.present?
       Hash.from_xml(res.body)["Response"]
