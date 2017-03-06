@@ -463,6 +463,15 @@ module ActiveShipping
             end
 
             xml.ShipmentServiceOptions do
+              if options[:notification_email]
+                xml.Notification do
+                  xml.NotificationCode("2")
+                  xml.EMailMessage do
+                    xml.EMailAddress(options[:notification_email])
+                  end
+                end
+              end
+              
               if delivery_confirmation = options[:delivery_confirmation]
                 xml.DeliveryConfirmation do
                   xml.DCISType(SHIPMENT_DELIVERY_CONFIRMATION_CODES[delivery_confirmation])
