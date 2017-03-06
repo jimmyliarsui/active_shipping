@@ -55,6 +55,10 @@ module ActiveShipping
       if order_hash[:pay_method] == 1
         order_hash[:custid] = @options[:monthly_account]
       end
+
+      if options[:need_return_tracking_no].to_i == 1
+        order_hash[:need_return_tracking_no] = 1
+      end
       
       ## 对于跨境物流，这几个字段必要
       packages = packages.map{|pack|
@@ -136,7 +140,6 @@ module ActiveShipping
     # weight 重量，volume 为 长,宽,高
     def confirm orderid, tracking_number, weight, volume
       hash = { orderid: orderid, mailno: tracking_number, weight: weight, volume: volume, dealtype: 1}
-      #hash = { orderid: '23322111', mailno: '444825172510', weight: 10, volume: '10,20,30', dealtype: 1}
       body = "<OrderConfirm #{to_attr_str hash}> </OrderConfirm>"
       call_sf :OrderConfirmService, body
     end
