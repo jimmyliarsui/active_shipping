@@ -407,8 +407,8 @@ module ActiveShipping
 
             Array(options[:reference_numbers]).each do |reference_num_info|
               xml.ReferenceNumber do
-                xml.Code(reference_num_info[:code] || "")
-                xml.Value(reference_num_info[:value])
+                xml.Code(reference_num_info['code'] || "")
+                xml.Value(reference_num_info['value'])
               end
             end
 
@@ -746,11 +746,10 @@ module ActiveShipping
           xml.Weight([value, 0.1].max)
         end
 
-
         Array(package.options[:reference_numbers]).each do |reference_number_info|
           xml.ReferenceNumber do
-            xml.Code(reference_number_info[:code] || "")
-            xml.Value(reference_number_info[:value])
+            xml.Code(reference_number_info['code'] || "")
+            xml.Value(reference_number_info['value'])
           end
         end
 
