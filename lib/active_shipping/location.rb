@@ -132,6 +132,7 @@ module ActiveShipping #:nodoc:
         phone: phone,
         mobile: mobile,
         fax: fax,
+        zip: zip,
         district: district,
         address_type: address_type,
         company_name: company_name

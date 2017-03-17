@@ -407,8 +407,8 @@ module ActiveShipping
 
             Array(options[:reference_numbers]).each do |reference_num_info|
               xml.ReferenceNumber do
-                xml.Code(reference_num_info[:code] || "")
-                xml.Value(reference_num_info[:value])
+                xml.Code(reference_num_info['code'] || "")
+                xml.Value(reference_num_info['value'])
               end
             end
 
@@ -471,7 +471,7 @@ module ActiveShipping
                   end
                 end
               end
-              
+
               if delivery_confirmation = options[:delivery_confirmation]
                 xml.DeliveryConfirmation do
                   xml.DCISType(SHIPMENT_DELIVERY_CONFIRMATION_CODES[delivery_confirmation])
@@ -484,9 +484,9 @@ module ActiveShipping
 
               if label_delivery_email = options[:label_delivery_email]
                 xml.LabelDelivery do
-                  xml.EMail do
+                  xml.EMailMessage do
                     xml.EMailAddress(label_delivery_email)
-                    
+
                     if undeliverable_email = options[:undeliverable_email_address]
                       xml.UndeliverableEMailAddress(undeliverable_email)
                     end
@@ -501,7 +501,7 @@ module ActiveShipping
                   end
                 end
               end
-              
+
             end
 
             # A request may specify multiple packages.
@@ -746,11 +746,10 @@ module ActiveShipping
           xml.Weight([value, 0.1].max)
         end
 
-
         Array(package.options[:reference_numbers]).each do |reference_number_info|
           xml.ReferenceNumber do
-            xml.Code(reference_number_info[:code] || "")
-            xml.Value(reference_number_info[:value])
+            xml.Code(reference_number_info['code'] || "")
+            xml.Value(reference_number_info['value'])
           end
         end
 
@@ -1059,7 +1058,8 @@ module ActiveShipping
     end
 
     def commit(action, request, test = false)
-      response = ssl_post("#{test ? TEST_URL : LIVE_URL}/#{RESOURCES[action]}", request)
+      #response = ssl_post("#{test ? TEST_URL : LIVE_URL}/#{RESOURCES[action]}", request)
+      response = ssl_post("#{LIVE_URL}/#{RESOURCES[action]}", request)
       response.encode('utf-8', 'iso-8859-1')
     end
 
@@ -1100,7 +1100,7 @@ module ActiveShipping
     def handle_package_level_delivery_confirmation(origin, destination, packages, options)
       packages.each do |package|
         # Transfer shipment-level option to package with no specified delivery_confirmation
-        package.options[:delivery_confirmation] = options[:delivery_confirmation] unless package.options[:delivery_confirmation]        
+        package.options[:delivery_confirmation] = options[:delivery_confirmation] unless package.options[:delivery_confirmation]
         # Assert that option is valid
         if package.options[:delivery_confirmation] && !PACKAGE_DELIVERY_CONFIRMATION_CODES[package.options[:delivery_confirmation]]
           raise "Invalid delivery_confirmation option on package: '#{package.options[:delivery_confirmation]}'. Use a key from PACKAGE_DELIVERY_CONFIRMATION_CODES"
