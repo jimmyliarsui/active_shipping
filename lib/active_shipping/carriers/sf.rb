@@ -7,8 +7,7 @@ module ActiveShipping
 
     @@name = "SF"
 
-    #TEST_URL = "http://218.17.248.244:11080/bsp-oisp/sfexpressService"
-    TEST_URL = "http://bspoisp.sit.sf-express.com:11080/bsp-oisp/sfexpressService"
+    TEST_URL = "http://bsp-ois.sit.sf-express.com:9080/bsp-ois/sfexpressService"
 
     ## 非固定 IP 接入
     LIVE_URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
@@ -16,7 +15,7 @@ module ActiveShipping
     ## 固定 IP 接入
     #LIVE_URL = "http://bsp-ois.sf-express.com/bsp-ois/sfexpressService"
     #LIVE_URL = "http://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService"
-    
+
     def requirements
       [:monthly_account, :checkword]
     end
@@ -59,7 +58,7 @@ module ActiveShipping
       if options[:need_return_tracking_no].to_i == 1
         order_hash[:need_return_tracking_no] = 1
       end
-      
+
       ## 对于跨境物流，这几个字段必要
       packages = packages.map{|pack|
         { name: pack.get_attr("name"),
@@ -72,7 +71,7 @@ module ActiveShipping
       }
 
       packages_attr_str = packages.map{|pack| "<Cargo\n#{to_attr_str pack}></Cargo>"}.join("\n")
-      
+
       service_attr = []
       if options[:pay_value].present?
         ## 代收货款服务，value 为代收的钱，币种为人民币或者港币，根据寄货所在的地区 value1为收款卡号，保留3位小数。
@@ -94,7 +93,7 @@ module ActiveShipping
       if options[:pkfee_value].present?
         service_attr << { name: 'PKFEE', value: options[:pkfee_value] }
       end
-      
+
       service_attr_str = if service_attr.size > 0
                            service_attr.map{|attr| "<AddedService #{to_attr_str attr} ></AddedService>"}.join("\n")
                          else
@@ -125,7 +124,7 @@ module ActiveShipping
     def search_order order_no, options = {}
       hash = { orderid: order_no }
       body = "<OrderSearch #{to_attr_str hash} />"
-      call_sf :OrderSearchService, body, options[:test]      
+      call_sf :OrderSearchService, body, options[:test]
     end
 
     # 客户在发货前取消订单。
