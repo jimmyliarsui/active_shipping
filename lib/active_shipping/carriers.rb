@@ -34,3 +34,4 @@ ActiveShipping::Carriers.register :CanadaPostPWS,    'active_shipping/carriers/c
 ActiveShipping::Carriers.register :Stamps,           'active_shipping/carriers/stamps'
 ActiveShipping::Carriers.register :Correios,         'active_shipping/carriers/correios'
 ActiveShipping::Carriers.register :AustraliaPost,    'active_shipping/carriers/australia_post'
+ActiveShipping::Carriers.register :SF,               'active_shipping/carriers/sf'

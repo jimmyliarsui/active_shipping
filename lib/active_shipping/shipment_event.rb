@@ -18,5 +18,10 @@ module ActiveShipping
       attributes = %i(name time location message type_code)
       attributes.all? { |attr| self.public_send(attr) == other.public_send(attr) }
     end
+
+    def md5hex
+      Digest::MD5.hexdigest("#{name}#{time}#{location}#{message}#{type_code}")
+    end
+    
   end
 end

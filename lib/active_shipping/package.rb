@@ -8,7 +8,7 @@ module ActiveShipping #:nodoc:
     # Package.new(100.grams, [10, 20, 30].map(&:centimetres))
     def initialize(grams_or_ounces, dimensions, options = {})
       options = @@default_options.update(options) if @@default_options
-      options.symbolize_keys!
+      options = options.symbolize_keys
       @options = options
 
       @dimensions = [dimensions].flatten.reject(&:nil?)
@@ -40,7 +40,7 @@ module ActiveShipping #:nodoc:
         process_dimensions
       end
 
-      @value = Package.cents_from(options[:value])
+      @value = Package.money_from(options[:value])
       @currency = options[:currency] || (options[:value].currency if options[:value].respond_to?(:currency))
       @cylinder = (options[:cylinder] || options[:tube]) ? true : false
       @gift = options[:gift] ? true : false
@@ -114,6 +114,15 @@ module ActiveShipping #:nodoc:
     end
     alias_method :mass, :weight
 
+    def self.money_from(value)
+      case value
+      when Float
+        value
+      else
+        value.to_f
+      end
+    end
+          
     def self.cents_from(money)
       return nil if money.nil?
       if money.respond_to?(:cents)
@@ -130,6 +139,14 @@ module ActiveShipping #:nodoc:
       end
     end
 
+    def get_attr name
+      if self.respond_to?(name.to_sym)
+        self.send(name.to_sym)
+      else
+        @options[name.to_sym]
+      end
+    end
+    
     private
 
     def attribute_from_metric_or_imperial(obj, klass, unit_system, metric_unit, imperial_unit)
@@ -164,5 +181,7 @@ module ActiveShipping #:nodoc:
         @dimensions.unshift(@dimensions[0])
       end
     end
+
+    
   end
 end
