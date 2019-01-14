@@ -1049,11 +1049,17 @@ module ActiveShipping
       response_info = Hash.from_xml(response).values.first
       packages = response_info["ShipmentResults"]["PackageResults"]
       packages = [packages] if Hash === packages
-      labels = packages.map do |package|
-        image = package["LabelImage"].present? ? Base64.decode64(package["LabelImage"]["GraphicImage"]) : ""
-        Label.new(package["TrackingNumber"], image)
+      labels = []
+      packages.each do |package|
+        next unless package["LabelImage"].present? && package["LabelImage"]["GraphicImage"].present?
+        image = Base64.decode64(package["LabelImage"]["GraphicImage"])
+        label1 = Label.new(package["TrackingNumber"], image)
+        labels.push(label1)
+        next unless package["LabelImage"]["InternationalSignatureGraphicImage"].present?
+        image2 = Base64.decode64(package["LabelImage"]["InternationalSignatureGraphicImage"])
+        label2 = Label.new(package["TrackingNumber"], image2)
+        labels.push(label2)
       end
-
       LabelResponse.new(success, message, response_info, {labels: labels})
     end
 
