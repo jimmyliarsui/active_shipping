@@ -1051,11 +1051,10 @@ module ActiveShipping
       packages = [packages] if Hash === packages
       labels = []
       packages.each do |package|
-        next unless package["LabelImage"].present? && package["LabelImage"]["GraphicImage"].present?
-        image = Base64.decode64(package["LabelImage"]["GraphicImage"])
+        image = package["LabelImage"].present? ? Base64.decode64(package["LabelImage"]["GraphicImage"]) : ""
         label1 = Label.new(package["TrackingNumber"], image)
         labels.push(label1)
-        next unless package["LabelImage"]["InternationalSignatureGraphicImage"].present?
+        next unless package["LabelImage"] && package["LabelImage"]["InternationalSignatureGraphicImage"].present?
         image2 = Base64.decode64(package["LabelImage"]["InternationalSignatureGraphicImage"])
         label2 = Label.new(package["TrackingNumber"], image2)
         labels.push(label2)
